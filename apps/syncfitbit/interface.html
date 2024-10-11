@@ -3,6 +3,7 @@
     <link rel="stylesheet" href="../../css/spectre.min.css">
   </head>
   <body>
+    <h1>
     <h3>1. Get a Fitbit account if you don't have one already</h3>
     <p>Do this at <a href="https://accounts.fitbit.com/signup">accounts.fitbit.com/signup</a>. After signing up you'll also need to verify your email.</p>
     <h3>2. Register an app</h3>
@@ -15,10 +16,13 @@
     <p>The other settings don't matter as far as this Bangle.js app is concerned, so change them to whatever you want.</p>
     <h3>3. Allow access and get other app info</h3>
     <ol>
-      <li>Enter <label for="clientId">your app's OAuth 2.0 client ID</label>:<input type="text" id="clientId"><button class="btn btn-default" id="clientIdSave">Generate Link</button></li>
+      <li>
+        Enter <label for="clientId">your app's OAuth 2.0 client ID</label>:<br>
+        <div class="input-group"><input type="text" id="clientId" class="form-input"><button class="btn btn-default input-group-btn" id="clientIdSave">Generate Link</button></div>
+      </li>
       <li>Click this link generated from your app's client ID: <a id="authLink" href="#">(no client ID provided yet)</a></li>
       <li>Accept the requested permissions and <strong>keep this page open</strong>--it will be needed for the next step...</li>
-      <li>The URL on this page should be something like <code>http://localhost/?code=[authorization code]&state=[state]#_=_</code>.<br>Enter <label for="authCode">the authorization code</label>: <input type="text" id="authCode"><button class="btn btn-default" id="authCodeSave">Save</button></li>
+      <li>The URL on this page should be something like <code>http://localhost/?code=[authorization code]&state=[state]#_=_</code>.<br>Enter <label for="authCode">the authorization code</label>: <div class="input-group"><input type="text" id="authCode" class="form-input"><button class="btn btn-default input-group-btn" id="authCodeSave">Save</button></div></li>
       <li>More instructions to come...</li>
     </ol>
 
