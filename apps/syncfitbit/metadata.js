@@ -6,6 +6,7 @@
   "description": "Uses Fitbit's API to automatically sync your steps to your Fitbit account.",
   "tags": "health",
   "supports": ["BANGLEJS2"],
+  "readme": "README.md",
   "storage": [
     {"name":"syncfitbit.app.js","url":"app.js"},
     {"name":"syncfitbit.img","url":"app-icon.js","evaluate":true}
