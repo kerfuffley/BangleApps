@@ -3,66 +3,41 @@
     <link rel="stylesheet" href="../../css/spectre.min.css">
   </head>
   <body>
+    <h3>1. Get a Fitbit account if you don't have one already</h3>
+    <p>Do this at <a href="https://accounts.fitbit.com/signup">accounts.fitbit.com/signup</a>. After signing up you'll also need to verify your email.</p>
+    <h3>2. Register an app</h3>
+    <p>You need to do this in order to use Fitbit's API. Follow <a href="https://dev.fitbit.com/build/reference/web-api/developer-guide/getting-started/#Registering-an-Application">these instructions</a> to register an app. <strong>Have your app's settings match the following:</strong>:</p>
+    <ul>
+      <li>OAuth 2.0 Application Type: Personal</li>
+      <li>Redirect URL: <code>http://localhost</code></li>
+      <li>Default Access Type: Read & Write</li>
+    </ul>
+    <p>The other settings don't matter as far as this Bangle.js app is concerned, so change them to whatever you want.</p>
+    <h3>3. Allow access and get other app info</h3>
+    <ol>
+      <li>Once your app is saved, some info about your new app will appear, such as its OAuth 2.0 client ID and app secret. Below that there should be a "OAuth 2.0 Tutorial" link. Click it.</li>
+      <li>On the Fitbit OAuth 2.0 Tutorial page, the Client ID field should be pre-filled. If it isn't, paste in your app's OAuth 2.0 client ID.</li>
+      <li>For Application Type, select Client.</li>
+      <li>Click the Generate buttons next to both "PKCE Code Verifier" and "State".</li>
+      <li>Under Scopes, make sure (TODO: which checkboxes? all?) are checked.</li>
+      <li>Under Authorization URL, click the authorization URL this tool has generated for you, accept the requested permissions on that page and <strong>keep this page open</strong>--it will be needed for the next step.</li>
+      <li>The URL on this page should be something like <code>http://localhost/?code=[authorization code]&state=[state]#_=_</code>. Copy the authorization code from this URL.</li>
+      <li>Go back to the Fitbit OAuth 2.0 Tutorial page and paste the URL as the page instructs you to under Step 3: Handle the Redirect. Alternatively, you could paste the authorization code and state from the URL into those fields.</li>
+      <li>More instructions to come...</li>
+    </ol>
+
+    <p><label for="clientId">OAuth 2.0 Client ID:</label> <input type="text" id="clientId" style="width: 100%;"></p>
+    <p><label for="pkceCodeVerifier">PKCE Code Verifier:</label> <input type="text" id="pkceCodeVerifier" style="width: 100%;"></p>
+    <p><label for="authCode">Authorization Code:</label> <input type="text" id="authCode" style="width: 100%;"></p>
+    
+    <p><input id="apikey" onkeyup="checkInput()"  style="width:90%; margin: 3px"></input><button id="upload" class="btn btn-primary">Save key</button></p>
+    
     <div id="data"></div>
     <button class="btn btn-default" id="btnSave">Save</button>
     <button class="btn btn-default" id="btnDelete">Delete</button>
 
     <script src="../../core/lib/interface.js"></script>
     <script>
-var dataElement = document.getElementById("data");
-var csvData = "";
-
-function getData() {
-  // show loading window
-  Util.showModal("Loading...");
-  // get the data
-  dataElement.innerHTML = "";
-  Util.readStorageFile(`gpspoilog.csv`,data=>{
-    csvData = data.trim();
-    // remove window
-    Util.hideModal();
-    // If no data, report it and exit
-    if (data.length==0) {
-      dataElement.innerHTML = "<b>No data found</b>";
-      return;
-    }
-    // Otherwise parse the data and output it as a table
-    dataElement.innerHTML = `<table>
-    <tr>
-      <th>Time</th>
-      <th>Lat</th>
-      <th>Lon</th>
-      <th>Alt</th>
-      <th>Type</th>
-    </tr>`+data.trim().split("\n").map(l=>{
-      l = l.split(",");
-      return `<tr>
-      <td>${(new Date(l[0]*1000)).toLocaleString()}</td>
-      <td>${l[1]}</td>
-      <td>${l[2]}</td>
-      <td>${l[3]}</td>
-      <td>${l[4]}</td>
-      </tr>`
-    }).join("\n")+"</table>";
-  });
-}
-
-// You can call a utility function to save the data
-document.getElementById("btnSave").addEventListener("click", function() {
-  Util.saveCSV("gpsdata", csvData);
-});
-// Or you can also delete the file
-document.getElementById("btnDelete").addEventListener("click", function() {
-  Util.showModal("Deleting...");
-  Util.eraseStorageFile("gpspoilog.csv", function() {
-    Util.hideModal();
-    getData();
-  });
-});
-// Called when app starts
-function onInit() {
-  getData();
-}
 
     </script>
   </body>
