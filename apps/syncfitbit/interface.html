@@ -15,30 +15,56 @@
     <p>The other settings don't matter as far as this Bangle.js app is concerned, so change them to whatever you want.</p>
     <h3>3. Allow access and get other app info</h3>
     <ol>
-      <li>Once your app is saved, some info about your new app will appear, such as its OAuth 2.0 client ID and app secret. Below that there should be a "OAuth 2.0 Tutorial" link. Click it.</li>
-      <li>On the Fitbit OAuth 2.0 Tutorial page, the Client ID field should be pre-filled. If it isn't, paste in your app's OAuth 2.0 client ID.</li>
-      <li>For Application Type, select Client.</li>
-      <li>Click the Generate buttons next to both "PKCE Code Verifier" and "State".</li>
-      <li>Under Scopes, make sure (TODO: which checkboxes? all?) are checked.</li>
-      <li>Under Authorization URL, click the authorization URL this tool has generated for you, accept the requested permissions on that page and <strong>keep this page open</strong>--it will be needed for the next step.</li>
-      <li>The URL on this page should be something like <code>http://localhost/?code=[authorization code]&state=[state]#_=_</code>. Copy the authorization code from this URL.</li>
-      <li>Go back to the Fitbit OAuth 2.0 Tutorial page and paste the URL as the page instructs you to under Step 3: Handle the Redirect. Alternatively, you could paste the authorization code and state from the URL into those fields.</li>
+      <li>Enter <label for="clientId">your app's OAuth 2.0 client ID</label>:<input type="text" id="clientId"><button class="btn btn-default" id="clientIdSave">Generate Link</button></li>
+      <li>Click this link generated from your app's client ID: <a id="authLink" href="#">(no client ID provided yet)</a></li>
+      <li>Accept the requested permissions and <strong>keep this page open</strong>--it will be needed for the next step...</li>
+      <li>The URL on this page should be something like <code>http://localhost/?code=[authorization code]&state=[state]#_=_</code>.<br>Enter <label for="authCode">the authorization code</label>: <input type="text" id="authCode"><button class="btn btn-default" id="authCodeSave">Save</button></li>
       <li>More instructions to come...</li>
     </ol>
 
-    <p><label for="clientId">OAuth 2.0 Client ID:</label> <input type="text" id="clientId" style="width: 100%;"></p>
-    <p><label for="pkceCodeVerifier">PKCE Code Verifier:</label> <input type="text" id="pkceCodeVerifier" style="width: 100%;"></p>
-    <p><label for="authCode">Authorization Code:</label> <input type="text" id="authCode" style="width: 100%;"></p>
-    
-    <p><input id="apikey" onkeyup="checkInput()"  style="width:90%; margin: 3px"></input><button id="upload" class="btn btn-primary">Save key</button></p>
-    
-    <div id="data"></div>
-    <button class="btn btn-default" id="btnSave">Save</button>
-    <button class="btn btn-default" id="btnDelete">Delete</button>
-
     <script src="../../core/lib/interface.js"></script>
     <script>
+      var pkceVerifier = '';
+      var pkceChallenge = '';
+      var state = '';
+      
+      var authLinkEl = document.getElementById('authLink');
 
+      function generateAuthLink(clientId) {
+        return 'https://www.fitbit.com/oauth2/authorize?response_type=code&client_id=' + clientId + '&scope=activity+cardio_fitness+electrocardiogram+heartrate+irregular_rhythm_notifications+location+nutrition+oxygen_saturation+profile+respiratory_rate+settings+sleep+social+temperature+weight&code_challenge=' + pkceChallenge + '&code_challenge_method=S256&state=' + state + '&redirect_uri=http%3A%2F%2Flocalhost';
+      }
+
+      document.getElementById("clientIdSave").addEventListener("click", function() {
+          var clientId = document.getElementById("clientId").value;
+          var authLink = generateAuthLink(clientId);
+          authLinkEl.href = authLink;
+          authLinkEl.text = authLink;
+          try {
+            settings.clientid = clientId;
+            Util.showModal("Saving...");
+            Util.writeStorage("syncfitbit.json", JSON.stringify(settings), ()=>{
+              Util.hideModal();
+            });
+            console.log("Sent settings!");
+          } catch(ex) {
+              console.log("(Warning) Could not write settings to BangleJs.");
+              console.log(ex);
+          }
+      });
+
+      document.getElementById("authCodeSave").addEventListener("click", function() {
+          try {
+            settings.authcode = document.getElementById("authCode").value;
+            Util.showModal("Saving...");
+            Util.writeStorage("syncfitbit.json", JSON.stringify(settings), ()=>{
+              Util.hideModal();
+            });
+            console.log("Sent settings!");
+          } catch(ex) {
+              console.log("(Warning) Could not write settings to BangleJs.");
+              console.log(ex);
+          }
+      });
     </script>
   </body>
 </html>
