@@ -34,35 +34,80 @@
         return 'https://www.fitbit.com/oauth2/authorize?response_type=code&client_id=' + clientId + '&scope=activity+cardio_fitness+electrocardiogram+heartrate+irregular_rhythm_notifications+location+nutrition+oxygen_saturation+profile+respiratory_rate+settings+sleep+social+temperature+weight&code_challenge=' + pkceChallenge + '&code_challenge_method=S256&state=' + state + '&redirect_uri=http%3A%2F%2Flocalhost';
       }
 
-      document.getElementById("clientIdSave").addEventListener("click", function() {
-          var clientId = document.getElementById("clientId").value;
-          var authLink = generateAuthLink(clientId);
-          authLinkEl.href = authLink;
-          authLinkEl.text = authLink;
-          try {
-            settings.clientid = clientId;
-            Util.showModal("Saving...");
-            Util.writeStorage("syncfitbit.json", JSON.stringify(settings), ()=>{
-              Util.hideModal();
-            });
-            console.log("Sent settings!");
-          } catch(ex) {
-              console.log("(Warning) Could not write settings to BangleJs.");
-              console.log(ex);
-          }
+      function checkInput() {
+        if (document.getElementById('clientId').value === '') {
+          document.getElementById('clientIdSave').disabled = true;
+        }
+        else {
+          document.getElementById('clientIdSave').disabled = false;
+        }
+
+        if (document.getElementById('authCode').value === '') {
+          document.getElementById('authCodeSave').disabled = true;
+        }
+        else {
+          document.getElementById('authCodeSave').disabled = false;
+        }
+      }
+      checkInput();
+
+      var settings = {};
+
+      function onInit(){
+        console.log('Loading settings from BangleJs...');
+        try {
+          Util.readStorageJSON('syncfitbit.json', data => {
+            if (data) {
+              settings = data;
+              console.log('Got settings', settings);
+              
+              document.getElementById('clientId').value = settings.clientid;
+              console.log('Loaded client ID from BangleJs.');
+
+              document.getElementById('authCode').value = settings.authcode;
+              console.log('Loaded auth code from BangleJs.');
+              
+              checkInput();
+            }
+          });
+        }
+        catch(ex) {
+            console.log('(Warning) Could not load settings from BangleJs.');
+            console.log(ex);
+        }
+      }
+      
+      document.getElementById('clientIdSave').addEventListener('click', function() {
+        var clientId = document.getElementById('clientId').value;
+        var authLink = generateAuthLink(clientId);
+        authLinkEl.href = authLink;
+        authLinkEl.text = authLink;
+        try {
+          settings.clientid = clientId;
+          Util.showModal('Saving...');
+          Util.writeStorage('syncfitbit.json', JSON.stringify(settings), ()=>{
+            Util.hideModal();
+          });
+          console.log('Sent settings!');
+        }
+        catch(ex) {
+          console.log('(Warning) Could not write client ID to BangleJs.');
+          console.log(ex);
+        }
       });
 
-      document.getElementById("authCodeSave").addEventListener("click", function() {
+      document.getElementById('authCodeSave').addEventListener('click', function() {
           try {
-            settings.authcode = document.getElementById("authCode").value;
+            settings.authcode = document.getElementById('authCode').value;
             Util.showModal("Saving...");
-            Util.writeStorage("syncfitbit.json", JSON.stringify(settings), ()=>{
+            Util.writeStorage('syncfitbit.json', JSON.stringify(settings), ()=>{
               Util.hideModal();
             });
-            console.log("Sent settings!");
-          } catch(ex) {
-              console.log("(Warning) Could not write settings to BangleJs.");
-              console.log(ex);
+            console.log('Sent settings!');
+          }
+          catch(ex) {
+            console.log('(Warning) Could not write auth code to BangleJs.');
+            console.log(ex);
           }
       });
     </script>
