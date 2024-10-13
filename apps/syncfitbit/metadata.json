@@ -8,6 +8,9 @@
   "interface": "interface.html",
   "supports": ["BANGLEJS2"],
   "readme": "README.md",
+  "data": [
+    {"name":"syncfitbit.json"}
+  ],
   "storage": [
     {"name":"syncfitbit.app.js","url":"app.js"},
     {"name":"syncfitbit.img","url":"app-icon.js","evaluate":true}

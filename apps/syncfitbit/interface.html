@@ -84,11 +84,15 @@
                         settings = data;
                         console.log('Got settings', settings);
 
-                        document.getElementById('clientId').value = settings.clientid;
-                        console.log('Loaded client ID from BangleJs.');
+                        if ('clientid' in settings) {
+                            document.getElementById('clientId').value = settings.clientid;
+                            console.log('Loaded client ID from BangleJs.');
+                        }
 
-                        document.getElementById('authCode').value = settings.authcode;
-                        console.log('Loaded auth code from BangleJs.');
+                        if ('authcode' in settings) {
+                            document.getElementById('authCode').value = settings.authcode;
+                            console.log('Loaded auth code from BangleJs.');
+                        }
                     }
                     else {
                         console.log('No settings found');
