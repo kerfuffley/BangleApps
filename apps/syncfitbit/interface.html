@@ -75,9 +75,8 @@
         console.log('State: ', state);
 
         var settings = {};
-        var temp = ''; // remove me
 
-        function onInit() {
+        function loadSettings() {
             console.log('Loading settings from BangleJs...');
             try {
                 Util.readStorageJSON('syncfitbit.json', data => {
@@ -97,6 +96,12 @@
                 console.log('(Warning) Could not load settings from BangleJs.');
                 console.log(ex);
             }
+        }
+
+        loadSettings();
+
+        function onInit() {
+            loadSettings();
         }
 
         function generateAuthLink(clientId) {
