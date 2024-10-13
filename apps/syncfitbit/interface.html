@@ -38,23 +38,6 @@
         return 'https://www.fitbit.com/oauth2/authorize?response_type=code&client_id=' + clientId + '&scope=activity+cardio_fitness+electrocardiogram+heartrate+irregular_rhythm_notifications+location+nutrition+oxygen_saturation+profile+respiratory_rate+settings+sleep+social+temperature+weight&code_challenge=' + pkceChallenge + '&code_challenge_method=S256&state=' + state + '&redirect_uri=http%3A%2F%2Flocalhost';
       }
 
-      function checkInput() {
-        if (document.getElementById('clientId').value === '') {
-          document.getElementById('clientIdSave').disabled = true;
-        }
-        else {
-          document.getElementById('clientIdSave').disabled = false;
-        }
-
-        if (document.getElementById('authCode').value === '') {
-          document.getElementById('authCodeSave').disabled = true;
-        }
-        else {
-          document.getElementById('authCodeSave').disabled = false;
-        }
-      }
-      checkInput();
-
       var settings = {};
 
       function onInit(){
@@ -70,8 +53,6 @@
 
               document.getElementById('authCode').value = settings.authcode;
               console.log('Loaded auth code from BangleJs.');
-              
-              checkInput();
             }
           });
         }
@@ -92,10 +73,10 @@
           Util.writeStorage('syncfitbit.json', JSON.stringify(settings), ()=>{
             Util.hideModal();
           });
-          console.log('Sent settings!');
+          console.log('Client ID updated in settings!');
         }
         catch(ex) {
-          console.log('(Warning) Could not write client ID to BangleJs.');
+          console.log('(Warning) Could not write client ID to settings.');
           console.log(ex);
         }
       });
@@ -107,10 +88,10 @@
             Util.writeStorage('syncfitbit.json', JSON.stringify(settings), ()=>{
               Util.hideModal();
             });
-            console.log('Sent settings!');
+            console.log('Auth code updated in settings!');
           }
           catch(ex) {
-            console.log('(Warning) Could not write auth code to BangleJs.');
+            console.log('(Warning) Could not write auth code to settings.');
             console.log(ex);
           }
       });
