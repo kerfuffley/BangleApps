@@ -90,6 +90,9 @@
                         document.getElementById('authCode').value = settings.authcode;
                         console.log('Loaded auth code from BangleJs.');
                     }
+                    else {
+                        console.log('No settings found');
+                    }
                 });
             }
             catch (ex) {
@@ -101,6 +104,7 @@
         loadSettings();
 
         function onInit() {
+            console.log('onInit called');
             loadSettings();
         }
 
