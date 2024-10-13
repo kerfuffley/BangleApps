@@ -1,100 +1,143 @@
 <html>
-  <head>
+
+<head>
     <link rel="stylesheet" href="../../css/spectre.min.css">
-  </head>
-  <body>
+</head>
+
+<body>
     <h1>Sync to Fitbit Setup</h1>
     <h3>1. Get a Fitbit account if you don't have one already</h3>
     <p>Do this at <a href="https://accounts.fitbit.com/signup">accounts.fitbit.com/signup</a>. After signing up you'll also need to verify your email.</p>
     <h3>2. Register an app</h3>
     <p>You need to do this in order to use Fitbit's API. Follow <a href="https://dev.fitbit.com/build/reference/web-api/developer-guide/getting-started/#Registering-an-Application">these instructions</a> to register an app. <strong>Have your app's settings match the following:</strong>:</p>
     <ul>
-      <li>OAuth 2.0 Application Type: Personal</li>
-      <li>Redirect URL: <code>http://localhost</code></li>
-      <li>Default Access Type: Read & Write</li>
+        <li>OAuth 2.0 Application Type: Personal</li>
+        <li>Redirect URL: <code>http://localhost</code></li>
+        <li>Default Access Type: Read & Write</li>
     </ul>
     <p>The other settings don't matter as far as this Bangle.js app is concerned, so change them to whatever you want.</p>
     <h3>3. Allow access and get other app info</h3>
     <ol>
-      <li>
-        Enter <label for="clientId">your app's OAuth 2.0 client ID</label>:<br>
-        <div class="input-group"><input type="text" id="clientId" class="form-input"><button class="btn btn-default input-group-btn" id="clientIdSave">Generate Link</button></div>
-      </li>
-      <li>Click this link generated from your app's client ID: <a id="authLink" href="#">(no client ID provided yet)</a></li>
-      <li>Accept the requested permissions and <strong>keep this page open</strong>--it will be needed for the next step...</li>
-      <li>The URL on this page should be something like <code>http://localhost/?code=[authorization code]&state=[state]#_=_</code>.<br>Enter <label for="authCode">the authorization code</label>: <div class="input-group"><input type="text" id="authCode" class="form-input"><button class="btn btn-default input-group-btn" id="authCodeSave">Save</button></div></li>
-      <li>More instructions to come...</li>
+        <li>
+            Enter <label for="clientId">your app's OAuth 2.0 client ID</label>:<br>
+            <div class="input-group"><input type="text" id="clientId" class="form-input"><button class="btn btn-default input-group-btn" id="clientIdSave">Generate Link</button></div>
+        </li>
+        <li>Click this link generated from your app's client ID: <a id="authLink" href="#">(no client ID provided yet)</a></li>
+        <li>Accept the requested permissions and <strong>keep this page open</strong>--it will be needed for the next step...</li>
+        <li>The URL on this page should be something like <code>http://localhost/?code=[authorization code]&state=[state]#_=_</code>.<br>Enter <label for="authCode">the authorization code</label>: <div class="input-group"><input type="text" id="authCode" class="form-input"><button class="btn btn-default input-group-btn" id="authCodeSave">Save</button></div>
+        </li>
+        <li>More instructions to come...</li>
     </ol>
 
     <script src="../../core/lib/interface.js"></script>
     <script>
-      var pkceVerifier = '';
-      var pkceChallenge = '';
-      var state = '';
-      
-      var authLinkEl = document.getElementById('authLink');
+        function generateRandomString(length) {
+            var array = new Uint32Array(length);
+            window.crypto.getRandomValues(array);
+            return Array.from(array, dec => ('0' + dec.toString(16)).substr(-2)).join('');
+        }
 
-      function generateAuthLink(clientId) {
-        return 'https://www.fitbit.com/oauth2/authorize?response_type=code&client_id=' + clientId + '&scope=activity+cardio_fitness+electrocardiogram+heartrate+irregular_rhythm_notifications+location+nutrition+oxygen_saturation+profile+respiratory_rate+settings+sleep+social+temperature+weight&code_challenge=' + pkceChallenge + '&code_challenge_method=S256&state=' + state + '&redirect_uri=http%3A%2F%2Flocalhost';
-      }
+        // Calculate the SHA256 hash of the input text. 
+        // Returns a promise that resolves to an ArrayBuffer
+        function sha256(plain) {
+            const encoder = new TextEncoder();
+            const data = encoder.encode(plain);
+            return window.crypto.subtle.digest('SHA-256', data);
+        }
 
-      var settings = {};
+        // Base64-urlencodes the input string
+        function base64urlencode(str) {
+            // Convert the ArrayBuffer to string using Uint8 array to conver to what btoa accepts.
+            // btoa accepts chars only within ascii 0-255 and base64 encodes them.
+            // Then convert the base64 encoded to base64url encoded
+            //   (replace + with -, replace / with _, trim trailing =)
+            return btoa(String.fromCharCode.apply(null, new Uint8Array(str)))
+                .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+        }
 
-      function onInit(){
-        console.log('Loading settings from BangleJs...');
-        try {
-          Util.readStorageJSON('syncfitbit.json', data => {
-            if (data) {
-              settings = data;
-              console.log('Got settings', settings);
-              
-              document.getElementById('clientId').value = settings.clientid;
-              console.log('Loaded client ID from BangleJs.');
+        // Return the base64-urlencoded sha256 hash for the PKCE challenge
+        async function pkceChallengeFromVerifier(v) {
+            hashed = await sha256(v);
+            return base64urlencode(hashed);
+        }
 
-              document.getElementById('authCode').value = settings.authcode;
-              console.log('Loaded auth code from BangleJs.');
+        // Create a new PKCE code_verifier (the plaintext random secret)
+        var pkceVerifier = generateRandomString(128);
+
+        // Hash and base64-urlencode the secret to use as the challenge
+        var pkceChallenge = await pkceChallengeFromVerifier(pkceVerifier);
+
+        // Create a random "state" value
+        var state = generateRandomString(32);
+
+        console.log('PKCE verifier: ', pkceVerifier);
+        console.log('PKCE challenge: ', pkceChallenge);
+        console.log('State: ', state);
+
+        var authLinkEl = document.getElementById('authLink');
+
+        var settings = {};
+
+        function onInit() {
+            console.log('Loading settings from BangleJs...');
+            try {
+                Util.readStorageJSON('syncfitbit.json', data => {
+                    if (data) {
+                        settings = data;
+                        console.log('Got settings', settings);
+
+                        document.getElementById('clientId').value = settings.clientid;
+                        console.log('Loaded client ID from BangleJs.');
+
+                        document.getElementById('authCode').value = settings.authcode;
+                        console.log('Loaded auth code from BangleJs.');
+                    }
+                });
             }
-          });
+            catch (ex) {
+                console.log('(Warning) Could not load settings from BangleJs.');
+                console.log(ex);
+            }
         }
-        catch(ex) {
-            console.log('(Warning) Could not load settings from BangleJs.');
-            console.log(ex);
-        }
-      }
-      
-      document.getElementById('clientIdSave').addEventListener('click', function() {
-        var clientId = document.getElementById('clientId').value;
-        var authLink = generateAuthLink(clientId);
-        authLinkEl.href = authLink;
-        authLinkEl.text = authLink;
-        try {
-          settings.clientid = clientId;
-          Util.showModal('Saving...');
-          Util.writeStorage('syncfitbit.json', JSON.stringify(settings), ()=>{
-            Util.hideModal();
-          });
-          console.log('Client ID updated in settings!');
-        }
-        catch(ex) {
-          console.log('(Warning) Could not write client ID to settings.');
-          console.log(ex);
-        }
-      });
 
-      document.getElementById('authCodeSave').addEventListener('click', function() {
-          try {
-            settings.authcode = document.getElementById('authCode').value;
-            Util.showModal("Saving...");
-            Util.writeStorage('syncfitbit.json', JSON.stringify(settings), ()=>{
-              Util.hideModal();
-            });
-            console.log('Auth code updated in settings!');
-          }
-          catch(ex) {
-            console.log('(Warning) Could not write auth code to settings.');
-            console.log(ex);
-          }
-      });
+        function generateAuthLink(clientId) {
+            return 'https://www.fitbit.com/oauth2/authorize?response_type=code&client_id=' + clientId + '&scope=activity+cardio_fitness+electrocardiogram+heartrate+irregular_rhythm_notifications+location+nutrition+oxygen_saturation+profile+respiratory_rate+settings+sleep+social+temperature+weight&code_challenge=' + pkceChallenge + '&code_challenge_method=S256&state=' + state + '&redirect_uri=http%3A%2F%2Flocalhost';
+        }
+
+        document.getElementById('clientIdSave').addEventListener('click', function () {
+            var clientId = document.getElementById('clientId').value;
+            var authLink = generateAuthLink(clientId);
+            authLinkEl.href = authLink;
+            authLinkEl.text = authLink;
+            try {
+                settings.clientid = clientId;
+                Util.showModal('Saving...');
+                Util.writeStorage('syncfitbit.json', JSON.stringify(settings), () => {
+                    Util.hideModal();
+                });
+                console.log('Client ID updated in settings!');
+            }
+            catch (ex) {
+                console.log('(Warning) Could not write client ID to settings.');
+                console.log(ex);
+            }
+        });
+
+        document.getElementById('authCodeSave').addEventListener('click', function () {
+            try {
+                settings.authcode = document.getElementById('authCode').value;
+                Util.showModal("Saving...");
+                Util.writeStorage('syncfitbit.json', JSON.stringify(settings), () => {
+                    Util.hideModal();
+                });
+                console.log('Auth code updated in settings!');
+            }
+            catch (ex) {
+                console.log('(Warning) Could not write auth code to settings.');
+                console.log(ex);
+            }
+        });
     </script>
-  </body>
+</body>
+
 </html>
