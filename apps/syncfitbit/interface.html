@@ -62,13 +62,13 @@
         }
 
         // Create a new PKCE code_verifier (the plaintext random secret)
-        var pkceVerifier = generateRandomString(128);
+        var pkceVerifier = generateRandomString(64);
 
         // Hash and base64-urlencode the secret to use as the challenge
         var pkceChallenge = await pkceChallengeFromVerifier(pkceVerifier);
 
         // Create a random "state" value
-        var state = generateRandomString(32);
+        var state = generateRandomString(16);
 
         console.log('PKCE verifier: ', pkceVerifier);
         console.log('PKCE challenge: ', pkceChallenge);
