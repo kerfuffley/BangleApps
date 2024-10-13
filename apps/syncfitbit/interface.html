@@ -20,17 +20,17 @@
     <ol>
         <li>
             Enter <label for="clientId">your app's OAuth 2.0 client ID</label>:<br>
-            <div class="input-group"><input type="text" id="clientId" class="form-input"><button class="btn btn-default input-group-btn" id="clientIdSave">Generate Link</button></div>
+            <div class="input-group"><input type="text" id="clientId" class="form-input"><button type="button" class="btn btn-default input-group-btn" id="clientIdSave">Generate Link</button></div>
         </li>
         <li>Click this link generated from your app's client ID: <a id="authLink" href="#">(no client ID provided yet)</a></li>
         <li>Accept the requested permissions and <strong>keep this page open</strong>--it will be needed for the next step...</li>
-        <li>The URL on this page should be something like <code>http://localhost/?code=[authorization code]&state=[state]#_=_</code>.<br>Enter <label for="authCode">the authorization code</label>: <div class="input-group"><input type="text" id="authCode" class="form-input"><button class="btn btn-default input-group-btn" id="authCodeSave">Save</button></div>
+        <li>The URL on this page should be something like <code>http://localhost/?code=[authorization code]&state=[state]#_=_</code>.<br>Enter <label for="authCode">the authorization code</label>: <div class="input-group"><input type="text" id="authCode" class="form-input"><button type="button" class="btn btn-default input-group-btn" id="authCodeSave">Save</button></div>
         </li>
         <li>More instructions to come...</li>
     </ol>
 
     <script src="../../core/lib/interface.js"></script>
-    <script>
+    <script type="module">
         function generateRandomString(length) {
             var array = new Uint32Array(length);
             window.crypto.getRandomValues(array);
@@ -74,8 +74,6 @@
         console.log('PKCE challenge: ', pkceChallenge);
         console.log('State: ', state);
 
-        var authLinkEl = document.getElementById('authLink');
-
         var settings = {};
 
         function onInit() {
@@ -107,6 +105,7 @@
         document.getElementById('clientIdSave').addEventListener('click', function () {
             var clientId = document.getElementById('clientId').value;
             var authLink = generateAuthLink(clientId);
+            var authLinkEl = document.getElementById('authLink');
             authLinkEl.href = authLink;
             authLinkEl.text = authLink;
             try {
