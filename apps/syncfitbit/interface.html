@@ -2,31 +2,6 @@
 
 <head>
     <link rel="stylesheet" href="../../css/spectre.min.css">
-    <style type="text/css">
-        .hidden-pkcechallenge {
-            display: none;
-        }
-
-        .got-pkcechallenge li.hidden-pkcechallenge {
-            display: list-item;
-        }
-
-        .got-pkcechallenge .shown-pkcechallenge {
-            display: none;
-        }
-
-        .hidden-clientid {
-            display: none;
-        }
-
-        .got-clientid li.hidden-clientid {
-            display: list-item;
-        }
-
-        .got-clientid .shown-clientid {
-            display: none;
-        }
-    </style>
 </head>
 
 <body>
@@ -43,17 +18,17 @@
     <p>The other settings don't matter as far as this Bangle.js app is concerned, so change them to whatever you want.</p>
     <h3>3. Allow access and get other app info</h3>
     <ol>
-        <li class="shown-pkcechallenge">Hold on, a PKCE challenge is still being generated, which is needed for the next step...</li>
-        <li class="hidden-pkcechallenge">
+        <li data-step="1">Hold on, a PKCE challenge is still being generated, which is needed for the next step...</li>
+        <li data-step="2" class="d-none">
             Enter <label for="clientId">your app's OAuth 2.0 client ID</label>:<br>
             <div class="input-group"><input type="text" id="clientId" class="form-input"><button type="button" class="btn btn-default input-group-btn" id="clientIdSave">Continue</button></div>
         </li>
-        <li class="shown-clientid">Enter your app's client ID above for more instructions...</li>
-        <li class="hidden-pkcechallenge hidden-clientid">Click this link generated from your app's client ID: <a id="authLink" href="#" target="_blank">(no client ID provided yet)</a></li>
-        <li class="hidden-pkcechallenge hidden-clientid">Accept the requested permissions and <strong>keep this page open</strong>--it will be needed for the next step...</li>
-        <li class="hidden-pkcechallenge hidden-clientid">The URL on this page should be something like <code>http://localhost/?code=[authorization code]&state=[state]#_=_</code>.<br>Enter <label for="authCode">the authorization code</label>: <div class="input-group"><input type="text" id="authCode" class="form-input"><button type="button" class="btn btn-default input-group-btn" id="authCodeSave">Save</button></div>
+        <li data-step="3" class="d-none">Enter your app's client ID above for more instructions...</li>
+        <li data-step="4" class="d-none">Click this link generated from your app's client ID: <a id="authLink" href="#" target="_blank">(no client ID provided yet)</a></li>
+        <li data-step="5" class="d-none">Accept the requested permissions and <strong>keep this page open</strong>--it will be needed for the next step...</li>
+        <li data-step="6" class="d-none">The URL on this page should be something like <code>http://localhost/?code=[authorization code]&state=[state]#_=_</code>.<br>Enter <label for="authCode">the authorization code</label>: <div class="input-group"><input type="text" id="authCode" class="form-input"><button type="button" class="btn btn-default input-group-btn" id="authCodeSave">Save</button></div>
         </li>
-        <li class="hidden-pkcechallenge hidden-clientid">More instructions to come...</li>
+        <li data-step="7" class="d-none">More instructions to come...</li>
     </ol>
 
     <script src="../../core/lib/interface.js"></script>
@@ -102,7 +77,15 @@
         pkceChallengeFromVerifier(pkceVerifier).then(function (result) {
             console.log('PKCE challenge: ', result);
             pkceChallenge = result;
-            document.body.classList.add('got-pkcechallenge');
+            document.querySelectorAll('[data-step]').forEach((el, i) => {
+                var stepAsNumber = parseInt(el.dataset.step);
+                if (stepAsNumber == 1) {
+                    el.classList.add('d-none');
+                }
+                else if (stepAsNumber == 2 || stepAsNumber == 3) {
+                    el.classList.remove('d-none');
+                }
+            });
         });
 
         var settingsFile = 'syncfitbit.json';
@@ -149,7 +132,16 @@
             var authLinkEl = document.getElementById('authLink');
             authLinkEl.href = authLink;
             authLinkEl.text = authLink;
-            document.body.classList.add('got-clientid');
+
+            document.querySelectorAll('[data-step]').forEach((el, i) => {
+                var stepAsNumber = parseInt(el.dataset.step);
+                if (stepAsNumber == 3) {
+                    el.classList.add('d-none');
+                }
+                else if (stepAsNumber >= 4) {
+                    el.classList.remove('d-none');
+                }
+            });
 
             try {
                 settings.clientid = clientId;
