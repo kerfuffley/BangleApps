@@ -2,6 +2,27 @@
 
 <head>
     <link rel="stylesheet" href="../../css/spectre.min.css">
+    <style type="text/css">
+        .hidden-pkcechallenge, .hidden-authlink {
+            display: none;
+        }
+
+        .got-pkcechallenge .hidden-pkcechallenge {
+            display: initial;
+        }
+
+        .got-pkcechallenge .shown-pkcechallenge {
+            display: none;
+        }
+
+        .got-clientid .hidden-clientid {
+            display: initial;
+        }
+
+        .got-clientid .shown-clientid {
+            display: none;
+        }
+    </style>
 </head>
 
 <body>
@@ -19,15 +40,16 @@
     <h3>3. Allow access and get other app info</h3>
     <ol>
         <li class="shown-pkcechallenge">Hold on, a PKCE challenge is still being generated, which is needed for the next step...</li>
-        <li class="hidden-pkcechallenge d-none">
+        <li class="hidden-pkcechallenge">
             Enter <label for="clientId">your app's OAuth 2.0 client ID</label>:<br>
-            <div class="input-group"><input type="text" id="clientId" class="form-input"><button type="button" class="btn btn-default input-group-btn" id="clientIdSave">Generate Link</button></div>
+            <div class="input-group"><input type="text" id="clientId" class="form-input"><button type="button" class="btn btn-default input-group-btn" id="clientIdSave">Continue</button></div>
         </li>
-        <li class="hidden-pkcechallenge d-none" style="">Click this link generated from your app's client ID: <a id="authLink" href="#" target="_blank">(no client ID provided yet)</a></li>
-        <li class="hidden-pkcechallenge d-none">Accept the requested permissions and <strong>keep this page open</strong>--it will be needed for the next step...</li>
-        <li class="hidden-pkcechallenge d-none">The URL on this page should be something like <code>http://localhost/?code=[authorization code]&state=[state]#_=_</code>.<br>Enter <label for="authCode">the authorization code</label>: <div class="input-group"><input type="text" id="authCode" class="form-input"><button type="button" class="btn btn-default input-group-btn" id="authCodeSave">Save</button></div>
+        <li class="shown-clientid">Enter your app's client ID above for more instructions...</li>
+        <li class="hidden-pkcechallenge hidden-clientid">Click this link generated from your app's client ID: <a id="authLink" href="#" target="_blank">(no client ID provided yet)</a></li>
+        <li class="hidden-pkcechallenge hidden-clientid">Accept the requested permissions and <strong>keep this page open</strong>--it will be needed for the next step...</li>
+        <li class="hidden-pkcechallenge hidden-clientid">The URL on this page should be something like <code>http://localhost/?code=[authorization code]&state=[state]#_=_</code>.<br>Enter <label for="authCode">the authorization code</label>: <div class="input-group"><input type="text" id="authCode" class="form-input"><button type="button" class="btn btn-default input-group-btn" id="authCodeSave">Save</button></div>
         </li>
-        <li class="hidden-pkcechallenge d-none">More instructions to come...</li>
+        <li class="hidden-pkcechallenge hidden-clientid">More instructions to come...</li>
     </ol>
 
     <script src="../../core/lib/interface.js"></script>
@@ -76,12 +98,7 @@
         pkceChallengeFromVerifier(pkceVerifier).then(function (result) {
             console.log('PKCE challenge: ', result);
             pkceChallenge = result;
-            document.querySelectorAll('.hidden-pkcechallenge').forEach((el, i) => {
-                el.classList.remove('d-none');
-            });
-            document.querySelectorAll('.shown-pkcechallenge').forEach((el, i) => {
-                el.classList.add('d-none');
-            });
+            document.body.classList.add('got-pkcechallenge');
         });
 
         var settingsFile = 'syncfitbit.json';
@@ -128,6 +145,8 @@
             var authLinkEl = document.getElementById('authLink');
             authLinkEl.href = authLink;
             authLinkEl.text = authLink;
+            document.body.classList.add('got-clientid');
+
             try {
                 settings.clientid = clientId;
                 Util.showModal('Saving...');
