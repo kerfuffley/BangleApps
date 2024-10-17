@@ -83,7 +83,7 @@
         var settingsFile = 'syncfitbit.json';
         var settings = {};
 
-        function loadSettings() {
+        function onInit() {
             console.log('Loading settings from BangleJs...');
             try {
                 console.log('got inside try block');
@@ -112,13 +112,6 @@
                 console.log('(Warning) Could not load settings from BangleJs.');
                 console.log(ex);
             }
-        }
-
-        loadSettings();
-
-        function onInit() {
-            console.log('onInit called');
-            loadSettings();
         }
 
         function generateAuthLink(clientId) {
