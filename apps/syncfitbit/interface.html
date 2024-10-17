@@ -80,7 +80,9 @@
         function loadSettings() {
             console.log('Loading settings from BangleJs...');
             try {
+                console.log('got inside try block');
                 Util.readStorageJSON(settingsFile, data => {
+                    console.log(data);
                     if (data) {
                         settings = data;
                         console.log('Got settings', settings);
