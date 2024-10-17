@@ -30,7 +30,7 @@
     </ol>
 
     <script src="../../core/lib/interface.js"></script>
-    <script type="module">
+    <script>
         function generateRandomString(length) {
             var array = new Uint32Array(length);
             window.crypto.getRandomValues(array);
@@ -65,13 +65,19 @@
         var pkceVerifier = generateRandomString(64);
 
         // Hash and base64-urlencode the secret to use as the challenge
-        var pkceChallenge = await pkceChallengeFromVerifier(pkceVerifier);
+        //var pkceChallenge = await pkceChallengeFromVerifier(pkceVerifier);
+        var pkceChallenge = '';
+
+        pkceChallengeFromVerifier(pkceVerifier).then(function (result) {
+            console.log('got challenge: ', result);
+            pkceChallenge = result;
+        });
+        
 
         // Create a random "state" value
         var state = generateRandomString(16);
 
         console.log('PKCE verifier: ', pkceVerifier);
-        console.log('PKCE challenge: ', pkceChallenge);
         console.log('State: ', state);
 
         var settingsFile = 'syncfitbit.json';
