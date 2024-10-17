@@ -18,15 +18,16 @@
     <p>The other settings don't matter as far as this Bangle.js app is concerned, so change them to whatever you want.</p>
     <h3>3. Allow access and get other app info</h3>
     <ol>
-        <li>
+        <li class="shown-pkcechallenge">Hold on, a PKCE challenge is still being generated, which is needed for the next step...</li>
+        <li class="hidden-pkcechallenge d-none">
             Enter <label for="clientId">your app's OAuth 2.0 client ID</label>:<br>
             <div class="input-group"><input type="text" id="clientId" class="form-input"><button type="button" class="btn btn-default input-group-btn" id="clientIdSave">Generate Link</button></div>
         </li>
-        <li>Click this link generated from your app's client ID: <a id="authLink" href="#" target="_blank">(no client ID provided yet)</a></li>
-        <li>Accept the requested permissions and <strong>keep this page open</strong>--it will be needed for the next step...</li>
-        <li>The URL on this page should be something like <code>http://localhost/?code=[authorization code]&state=[state]#_=_</code>.<br>Enter <label for="authCode">the authorization code</label>: <div class="input-group"><input type="text" id="authCode" class="form-input"><button type="button" class="btn btn-default input-group-btn" id="authCodeSave">Save</button></div>
+        <li class="hidden-pkcechallenge d-none" style="">Click this link generated from your app's client ID: <a id="authLink" href="#" target="_blank">(no client ID provided yet)</a></li>
+        <li class="hidden-pkcechallenge d-none">Accept the requested permissions and <strong>keep this page open</strong>--it will be needed for the next step...</li>
+        <li class="hidden-pkcechallenge d-none">The URL on this page should be something like <code>http://localhost/?code=[authorization code]&state=[state]#_=_</code>.<br>Enter <label for="authCode">the authorization code</label>: <div class="input-group"><input type="text" id="authCode" class="form-input"><button type="button" class="btn btn-default input-group-btn" id="authCodeSave">Save</button></div>
         </li>
-        <li>More instructions to come...</li>
+        <li class="hidden-pkcechallenge d-none">More instructions to come...</li>
     </ol>
 
     <script src="../../core/lib/interface.js"></script>
@@ -64,21 +65,24 @@
         // Create a new PKCE code_verifier (the plaintext random secret)
         var pkceVerifier = generateRandomString(64);
 
-        // Hash and base64-urlencode the secret to use as the challenge
-        //var pkceChallenge = await pkceChallengeFromVerifier(pkceVerifier);
-        var pkceChallenge = '';
-
-        pkceChallengeFromVerifier(pkceVerifier).then(function (result) {
-            console.log('got challenge: ', result);
-            pkceChallenge = result;
-        });
-        
-
         // Create a random "state" value
         var state = generateRandomString(16);
 
         console.log('PKCE verifier: ', pkceVerifier);
         console.log('State: ', state);
+
+        // Hash and base64-urlencode the secret to use as the challenge
+        var pkceChallenge = '';
+        pkceChallengeFromVerifier(pkceVerifier).then(function (result) {
+            console.log('PKCE challenge: ', result);
+            pkceChallenge = result;
+            document.querySelectorAll('.hidden-pkcechallenge').forEach((el, i) => {
+                el.classList.remove('d-none');
+            });
+            document.querySelectorAll('.shown-pkcechallenge').forEach((el, i) => {
+                el.classList.add('d-none');
+            });
+        });
 
         var settingsFile = 'syncfitbit.json';
         var settings = {};
