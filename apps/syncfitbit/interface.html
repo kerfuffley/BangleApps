@@ -87,12 +87,12 @@
                         el.classList.remove('d-none');
                     }
                     else if (stepAsNumber == 3) {
-                         if (document.getElementById('clientId').value != '') {
+                        if (document.getElementById('clientId').value != '') {
                             el.classList.add('d-none');
-                         }
-                         else {
+                        }
+                        else {
                             el.classList.remove('d-none');
-                         }
+                        }
                     }
                     else if (stepAsNumber >= 4) {
                         if (document.getElementById('clientId').value != '') {
@@ -105,10 +105,11 @@
                 }
             });
         }
-        
+
         pkceChallengeFromVerifier(pkceVerifier).then(function (result) {
             console.log('PKCE challenge: ', result);
             pkceChallenge = result;
+            updateAuthLink();
             showCorrectSteps();
         });
 
@@ -116,13 +117,15 @@
         var settings = {};
 
         function updateAuthLink() {
-            var clientId = document.getElementById('clientId').value;
-            var authLinkEl = document.getElementById('authLink');
-            var authLink = 'https://www.fitbit.com/oauth2/authorize?response_type=code&client_id=' + clientId + '&scope=activity+cardio_fitness+electrocardiogram+heartrate+irregular_rhythm_notifications+location+nutrition+oxygen_saturation+profile+respiratory_rate+settings+sleep+social+temperature+weight&code_challenge=' + pkceChallenge + '&code_challenge_method=S256&state=' + state + '&redirect_uri=http%3A%2F%2Flocalhost';
-            authLinkEl.href = authLink;
-            authLinkEl.text = authLink;
+            if (clientId != '' && pkceChallenge != '') {
+                var clientId = document.getElementById('clientId').value;
+                var authLinkEl = document.getElementById('authLink');
+                var authLink = 'https://www.fitbit.com/oauth2/authorize?response_type=code&client_id=' + clientId + '&scope=activity+cardio_fitness+electrocardiogram+heartrate+irregular_rhythm_notifications+location+nutrition+oxygen_saturation+profile+respiratory_rate+settings+sleep+social+temperature+weight&code_challenge=' + pkceChallenge + '&code_challenge_method=S256&state=' + state + '&redirect_uri=http%3A%2F%2Flocalhost';
+                authLinkEl.href = authLink;
+                authLinkEl.text = authLink;
+            }
         }
-        
+
         function onInit() {
             console.log('Loading settings from BangleJs...');
             try {
