@@ -114,6 +114,14 @@
 
         var settingsFile = 'syncfitbit.json';
         var settings = {};
+
+        function updateAuthLink() {
+            var clientId = document.getElementById('clientId').value;
+            var authLinkEl = document.getElementById('authLink');
+            var authLink = 'https://www.fitbit.com/oauth2/authorize?response_type=code&client_id=' + clientId + '&scope=activity+cardio_fitness+electrocardiogram+heartrate+irregular_rhythm_notifications+location+nutrition+oxygen_saturation+profile+respiratory_rate+settings+sleep+social+temperature+weight&code_challenge=' + pkceChallenge + '&code_challenge_method=S256&state=' + state + '&redirect_uri=http%3A%2F%2Flocalhost';
+            authLinkEl.href = authLink;
+            authLinkEl.text = authLink;
+        }
         
         function onInit() {
             console.log('Loading settings from BangleJs...');
@@ -145,22 +153,16 @@
                 console.log('(Warning) Could not load settings from BangleJs.');
                 console.log(ex);
             }
-        }
 
-        function generateAuthLink(clientId) {
-            return 'https://www.fitbit.com/oauth2/authorize?response_type=code&client_id=' + clientId + '&scope=activity+cardio_fitness+electrocardiogram+heartrate+irregular_rhythm_notifications+location+nutrition+oxygen_saturation+profile+respiratory_rate+settings+sleep+social+temperature+weight&code_challenge=' + pkceChallenge + '&code_challenge_method=S256&state=' + state + '&redirect_uri=http%3A%2F%2Flocalhost';
+            updateAuthLink();
         }
 
         document.getElementById('clientIdSave').addEventListener('click', function () {
-            var clientId = document.getElementById('clientId').value;
-            var authLink = generateAuthLink(clientId);
-            var authLinkEl = document.getElementById('authLink');
-            authLinkEl.href = authLink;
-            authLinkEl.text = authLink;
+            updateAuthLink();
             showCorrectSteps();
 
             try {
-                settings.clientid = clientId;
+                settings.clientid = document.getElementById('clientId').value;
                 Util.showModal('Saving...');
                 Util.writeStorage(settingsFile, JSON.stringify(settings), () => {
                     Util.hideModal();
