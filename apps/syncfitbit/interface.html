@@ -41,6 +41,7 @@
 
         // Calculate the SHA256 hash of the input text. 
         // Returns a promise that resolves to an ArrayBuffer
+        // Source: https://gist.github.com/ahmetgeymen/a9dcd656a1527f6c73d9c712ea2d9d7e
         function sha256(plain) {
             const encoder = new TextEncoder();
             const data = encoder.encode(plain);
@@ -48,6 +49,7 @@
         }
 
         // Base64-urlencodes the input string
+        // Source: https://gist.github.com/ahmetgeymen/a9dcd656a1527f6c73d9c712ea2d9d7e
         function base64urlencode(str) {
             // Convert the ArrayBuffer to string using Uint8 array to conver to what btoa accepts.
             // btoa accepts chars only within ascii 0-255 and base64 encodes them.
@@ -58,6 +60,7 @@
         }
 
         // Return the base64-urlencoded sha256 hash for the PKCE challenge
+        // Source: https://gist.github.com/ahmetgeymen/a9dcd656a1527f6c73d9c712ea2d9d7e
         async function pkceChallengeFromVerifier(v) {
             var hashed = await sha256(v);
             return base64urlencode(hashed);
