@@ -99,11 +99,11 @@
                     else if (stepAsNumber >= 4) {
                         if (document.getElementById('clientId').value != '') {
                             el.classList.remove('d-none');
-                            console.log('step ' + stepAsNumber + ' hidden cuz client id not empty');
+                            console.log('step ' + stepAsNumber + ' shown cuz client id not empty');
                         }
                         else {
                             el.classList.add('d-none');
-                            console.log('step ' + stepAsNumber + ' shown cuz client id empty');
+                            console.log('step ' + stepAsNumber + ' hidden cuz client id empty');
                         }
                     }
                 }
@@ -148,6 +148,9 @@
                             document.getElementById('authCode').value = settings.authcode;
                             console.log('Loaded auth code from BangleJs.');
                         }
+
+                        updateAuthLink();
+                        showCorrectSteps();
                     }
                     else {
                         console.log('No settings found');
@@ -158,9 +161,6 @@
                 console.log('(Warning) Could not load settings from BangleJs.');
                 console.log(ex);
             }
-
-            updateAuthLink();
-            showCorrectSteps();
         }
 
         document.getElementById('clientIdSave').addEventListener('click', function () {
