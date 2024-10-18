@@ -89,17 +89,21 @@
                     else if (stepAsNumber == 3) {
                         if (document.getElementById('clientId').value != '') {
                             el.classList.add('d-none');
+                            console.log('step 3 hidden cuz client id not empty');
                         }
                         else {
                             el.classList.remove('d-none');
+                            console.log('step 3 shown cuz client id empty');
                         }
                     }
                     else if (stepAsNumber >= 4) {
                         if (document.getElementById('clientId').value != '') {
                             el.classList.remove('d-none');
+                            console.log('step ' + stepAsNumber + ' hidden cuz client id not empty');
                         }
                         else {
                             el.classList.add('d-none');
+                            console.log('step ' + stepAsNumber + ' shown cuz client id empty');
                         }
                     }
                 }
@@ -129,7 +133,6 @@
         function onInit() {
             console.log('Loading settings from BangleJs...');
             try {
-                console.log('got inside try block');
                 Util.readStorageJSON(settingsFile, data => {
                     console.log(data);
                     if (data) {
