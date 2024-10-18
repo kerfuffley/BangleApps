@@ -106,16 +106,6 @@
             });
         }
 
-        pkceChallengeFromVerifier(pkceVerifier).then(function (result) {
-            console.log('PKCE challenge: ', result);
-            pkceChallenge = result;
-            updateAuthLink();
-            showCorrectSteps();
-        });
-
-        var settingsFile = 'syncfitbit.json';
-        var settings = {};
-
         function updateAuthLink() {
             var clientId = document.getElementById('clientId').value;
             if (clientId != '' && pkceChallenge != '') {
@@ -125,6 +115,16 @@
                 authLinkEl.text = authLink;
             }
         }
+
+        pkceChallengeFromVerifier(pkceVerifier).then(function (result) {
+            console.log('PKCE challenge: ', result);
+            pkceChallenge = result;
+            updateAuthLink();
+            showCorrectSteps();
+        });
+
+        var settingsFile = 'syncfitbit.json';
+        var settings = {};
 
         function onInit() {
             console.log('Loading settings from BangleJs...');
@@ -139,7 +139,6 @@
                         if ('clientid' in settings) {
                             document.getElementById('clientId').value = settings.clientid;
                             console.log('Loaded client ID from BangleJs.');
-                            showCorrectSteps();
                         }
 
                         if ('authcode' in settings) {
@@ -158,6 +157,7 @@
             }
 
             updateAuthLink();
+            showCorrectSteps();
         }
 
         document.getElementById('clientIdSave').addEventListener('click', function () {
