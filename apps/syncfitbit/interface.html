@@ -72,6 +72,9 @@
         console.log('PKCE verifier: ', pkceVerifier);
         console.log('State: ', state);
 
+        // Hash and base64-urlencode the secret to use as the challenge
+        var pkceChallenge = '';
+
         function showCorrectSteps() {
             document.querySelectorAll('[data-step]').forEach((el, i) => {
                 var stepAsNumber = parseInt(el.dataset.step);
@@ -91,15 +94,18 @@
                             el.classList.remove('d-none');
                          }
                     }
-                    else if (stepAsNumber >= 4 && document.getElementById('clientId').value != '') {
-                        el.classList.remove('d-none');
+                    else if (stepAsNumber >= 4) {
+                        if (document.getElementById('clientId').value != '') {
+                            el.classList.remove('d-none');
+                        }
+                        else {
+                            el.classList.add('d-none');
+                        }
                     }
                 }
             });
         }
-
-        // Hash and base64-urlencode the secret to use as the challenge
-        var pkceChallenge = '';
+        
         pkceChallengeFromVerifier(pkceVerifier).then(function (result) {
             console.log('PKCE challenge: ', result);
             pkceChallenge = result;
