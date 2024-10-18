@@ -192,6 +192,24 @@
                     Util.hideModal();
                 });
                 console.log('Auth code updated in settings!');
+
+                var tokenData = new URLSearchParams({
+                    client_id: document.getElementById('clientId').value,
+                    grant_type: 'authorization_code',
+                    redirect_uri: 'http://localhost',
+                    code: document.getElementById('authCode').value,
+                    code_verifier: pkceVerifier
+                });
+
+                Bangle.http('https://api.fitbit.com/oauth2/token', {
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: tokenData.toString()
+                }).then(data => {
+                    console.log("Got ", data);
+
+                    // might want to use this for data:
+                    //console.log("Got response from server:", JSON.stringify(data));
+                });
             }
             catch (ex) {
                 console.log('(Warning) Could not write auth code to settings.');
